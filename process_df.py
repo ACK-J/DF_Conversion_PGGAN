@@ -3,9 +3,24 @@ import re
 import numpy as np
 import tqdm as tqdm
 
+"""
+Author:     Nate Mathews 
+            njm3308@rit.edu
+Author:     Jack Hyland
+            jxh3105@rit.edu
+Date:       2/3/2020
+Description: This file provides functions to convert the Deep Fingerprinting 
+             dataset into different, potentially more efficient version.
+"""
 
 def process_trace(trace, style='direction', **kwargs):
+    """
 
+    :param trace:
+    :param style:
+    :param kwargs:
+    :return:
+    """
     def process_by_direction(trace):
         rep = [0, 0]
         burst_count = 0
@@ -190,3 +205,7 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
 
     # return X and Y as numpy arrays
     return X, Y, xmax
+
+
+if __name__ == '__main__':
+    load_data('/data/website-fingerprinting/datasets/undefended', max_length=1000, max_instances=1000)
