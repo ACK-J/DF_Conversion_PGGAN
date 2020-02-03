@@ -100,15 +100,17 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
     ----------
     directory : str
         System file path to a directory containing feature files.
+    max_length : int
+        The maximum size of the new vector generated
     separator : str
         Character string used to split features in the feature files.
-    split_at : str
+    fname_pattern : str
         Character string used to split feature file names.
         First substring identifies the class, while the second substring identifies the instance number.
         Instance number is ignored.
     max_classes : int
         Maximum number of classes to load.
-    max_instances : int
+    min_instances : int
         Minimum number of instances acceptable per class.
         If a class has less than this number of instances, the all instances of the class are discarded.
     max_instances : int
