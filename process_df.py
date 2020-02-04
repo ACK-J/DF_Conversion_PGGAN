@@ -213,4 +213,4 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
 
 
 if __name__ == '__main__':
-    load_data(directory=r'D:\FILES\Code\Python\DF_Conversion_PGGAN\dataset', max_length=1000, max_instances=1000)
+    X, Y, xmax = load_data(directory=r'D:\FILES\Code\Python\DF_Conversion_PGGAN\dataset', max_length=1000, max_instances=1000)
