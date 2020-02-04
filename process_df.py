@@ -74,15 +74,17 @@ def process_trace(trace, style='direction', **kwargs):
     # process into burst sequences using IATs
     if style == 'iat':
         rep = process_by_iat(trace)
+        return rep
 
     # process into bursts by timeslice
     if style == 'time':
         rep = process_by_timeslice(trace)
+        return rep
 
     # process into bursts by direction
     if style == 'direction':
         rep = process_by_direction(trace)
-
+        return rep
 
 def load_trace(fi, separator="\t", filter_by_size=False):
     """
