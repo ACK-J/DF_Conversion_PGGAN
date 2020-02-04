@@ -11,7 +11,9 @@ Author:     Jack Hyland
 Date:       2/3/2020
 Description: This file provides functions to convert the Deep Fingerprinting 
              dataset into different, potentially more efficient version.
+Usage:      load_data('/data/website-fingerprinting/datasets/undefended', max_length=1000, max_instances=1000)
 """
+
 
 def process_trace(trace, style='direction', **kwargs):
     """
@@ -21,17 +23,18 @@ def process_trace(trace, style='direction', **kwargs):
     :param kwargs:
     :return:
     """
+
     def process_by_direction(trace):
         rep = [0, 0]
         burst_count = 0
         for i in range(len(trace[2])):
             direction = trace[2][i]
             if direction > 0:
-                if len(rep)//2 == burst_count:
+                if len(rep) // 2 == burst_count:
                     rep.extend([0, 0])
                 rep[-2] += 1
             else:
-                if len(rep)//2 != burst_count:
+                if len(rep) // 2 != burst_count:
                     burst_count += 1
                 rep[-1] += 1
         return rep
@@ -44,13 +47,13 @@ def process_trace(trace, style='direction', **kwargs):
         else:
             burst_seq[1] += 1
         for i in range(1, len(trace[0])):
-            iat = trace[0][i] - trace[0][i-1]
+            iat = trace[0][i] - trace[0][i - 1]
             if iat > threshold:
                 burst_seq.extend([0, 0])
             if trace[2][i] > 0:
-                burst_seq[len(burst_seq)-2] += 1
+                burst_seq[len(burst_seq) - 2] += 1
             else:
-                burst_seq[len(burst_seq)-1] += 1
+                burst_seq[len(burst_seq) - 1] += 1
         return burst_seq
 
     def process_by_timeslice(trace, interval=0.05):
@@ -63,24 +66,22 @@ def process_trace(trace, style='direction', **kwargs):
                 burst_seq.extend([0, 0])
             direction = trace[2][i]
             if direction > 0:
-                burst_seq[len(burst_seq)-2] += 1
+                burst_seq[len(burst_seq) - 2] += 1
             else:
-                burst_seq[len(burst_seq)-1] += 1
+                burst_seq[len(burst_seq) - 1] += 1
         return burst_seq
 
-
     # process into burst sequences using IATs
-    if style=='iat':
+    if style == 'iat':
         rep = process_by_iat(trace)
 
     # process into bursts by timeslice
-    if style=='time':
+    if style == 'time':
         rep = process_by_timeslice(trace)
 
     # process into bursts by direction
-    if style=='direction':
+    if style == 'direction':
         rep = process_by_direction(trace)
-
 
 
 def load_trace(fi, separator="\t", filter_by_size=False):
@@ -119,7 +120,7 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
         The maximum size of the new vector generated
     separator : str
         Character string used to split features in the feature files.
-    fname_pattern : str
+    fname_pattern : raw str
         Character string used to split feature file names.
         First substring identifies the class, while the second substring identifies the instance number.
         Instance number is ignored.
@@ -147,37 +148,38 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
 
         # read each feature file as CSV
         class_counter = dict()  # track number of instances per class
-        for fname in tqdm(files, total=len(files)):
+        # Error check just incase no files are found
+        if files != []:
+            for fname in tqdm.tqdm(files, total=len(files)):
 
-            # get trace class
-            cls = int(re.match(fname_pattern, fname).group(1))
+                # get trace class
+                cls = int(re.match(fname_pattern, fname).group(1))
 
-            # skip if maximum number of instances reached
-            if class_counter.get(cls, 0) >= max_instances:
-                continue
+                # skip if maximum number of instances reached
+                if class_counter.get(cls, 0) >= max_instances:
+                    continue
 
-            # skip if maximum number of classes reached
-            if int(cls) >= max_classes:
-                continue
+                # skip if maximum number of classes reached
+                if int(cls) >= max_classes:
+                    continue
 
-            with open(os.path.join(root, fname), "r") as fi:
+                with open(os.path.join(root, fname), "r") as fi:
 
-                # load the trace file
-                trace = load_trace(fi, separator, filter_by_size=False)
+                    # load the trace file
+                    trace = load_trace(fi, separator, filter_by_size=False)
 
-                # process trace file to sequence representation
-                rep = np.array(process_trace(trace, **t_kwargs))
+                    # process trace file to sequence representation
+                    rep = np.array(process_trace(trace, **t_kwargs))
 
-                # pad trace length with zeros
-                if max_length is not None:
-                    if len(rep) < max_length:
-                        rep = np.hstack((rep, np.zeros((max_length - len(rep),))))
-                    rep.resize((max_length, 1))
+                    # pad trace length with zeros
+                    if max_length is not None:
+                        if len(rep) < max_length:
+                            rep = np.hstack((rep, np.zeros((max_length - len(rep),))))
+                        rep.resize((max_length, 1))
 
-                X.append(rep)
-                Y.append(cls)
-                class_counter[int(cls)] = class_counter.get(cls, 0) + 1
-
+                    X.append(rep)
+                    Y.append(cls)
+                    class_counter[int(cls)] = class_counter.get(cls, 0) + 1
     # trim data to minimum instance count
     counts = {y: Y.count(y) for y in set(Y)}
     new_X, new_Y = [], []
@@ -199,6 +201,7 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
 
     X, Y = np.array(X), np.array(Y)
 
+    print(X)
     # normalize data to between -1 and 1
     xmax = np.amax(np.abs(X.ravel()))
     X /= xmax
@@ -208,4 +211,4 @@ def load_data(directory, max_length=None, separator='\t', fname_pattern=r"(\d+)[
 
 
 if __name__ == '__main__':
-    load_data('/data/website-fingerprinting/datasets/undefended', max_length=1000, max_instances=1000)
+    load_data(directory=r'D:\FILES\Code\Python\DF_Conversion_PGGAN\dataset', max_length=1000, max_instances=1000)
